@@ -103,7 +103,7 @@ public class InitialDataImport {
 
         File[] files = getInitialImportObjects();
         LOGGER.debug("Files to be imported: {}.", Arrays.toString(files));
-        
+
         // We need to provide a fake Spring security context here.
         // We have to fake it because we do not have anything in the repository yet. And to get
         // something to the repository we need a context. Chicken and egg. So we fake the egg.
@@ -219,7 +219,7 @@ public class InitialDataImport {
         URL path = InitialDataImport.class.getClassLoader().getResource("initial-objects");
     	String resourceType = path.getProtocol();
 
-        File[] files = null;
+        final List<File> files = new ArrayList<>();
         File folder = null;
         
         if ("zip".equals(resourceType) || "jar".equals(resourceType)) {
@@ -283,7 +283,7 @@ public class InitialDataImport {
 	        folder = getResource("initial-objects");
     	}
     	
-        files = folder.listFiles(new FileFilter() {
+        files.addAll(Arrays.asList(folder.listFiles(new FileFilter() {
 
             @Override
             public boolean accept(File pathname) {
@@ -293,8 +293,18 @@ public class InitialDataImport {
 
                 return true;
             }
-        });
-        Arrays.sort(files, new Comparator<File>() {
+        })));
+
+        // ---- JB ----
+
+        final File initialObjectsFromConfigFolder = new File(configuration.getMidpointHome() + "initial-objects");
+        if (initialObjectsFromConfigFolder.exists()) {
+            files.addAll(Arrays.asList(initialObjectsFromConfigFolder.listFiles()));
+        }
+
+        // ---- JB ----
+
+        Collections.sort(files, new Comparator<File>() {
 
             @Override
             public int compare(File o1, File o2) {
@@ -305,7 +315,7 @@ public class InitialDataImport {
             }
         });
 	
-        return files;
+        return files.toArray(new File[files.size()]);
     }
 
     private int getNumberFromName(File file) {
