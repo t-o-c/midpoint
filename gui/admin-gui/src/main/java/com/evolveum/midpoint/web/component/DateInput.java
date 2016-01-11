@@ -16,8 +16,10 @@
 
 package com.evolveum.midpoint.web.component;
 
+import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
@@ -32,6 +34,11 @@ public class DateInput extends DateTimeField {
 
     public DateInput(String id, IModel<Date> model) {
         super(id, model);
+    }
+
+    @Override
+    protected DateTextField newDateTextField(String id, PropertyModel<Date> dateFieldModel) {
+        return DateTextField.forDatePattern(id, dateFieldModel, "dd.MM.yyyy");
     }
 
     public void updateDateTimeModel() {
